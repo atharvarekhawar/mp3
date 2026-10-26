@@ -1,6 +1,3 @@
-/*
- * Shared helpers for the users and tasks endpoints.
- */
 var mongoose = require('mongoose');
 
 class HttpError extends Error {
@@ -19,7 +16,6 @@ function isValidId(id) {
     return typeof id === 'string' && /^[0-9a-fA-F]{24}$/.test(id);
 }
 
-// Parse a JSON-encoded query string parameter; undefined when absent.
 function parseJsonParam(query, key) {
     var raw = query[key];
     if (raw === undefined) return undefined;
@@ -58,7 +54,6 @@ function parseBoolParam(query, key) {
     throw new HttpError(400, 'Bad Request', '"' + key + '" parameter must be true or false');
 }
 
-// Run a collection GET using Mongoose query methods.
 async function listCollection(Model, query, defaultLimit) {
     var where = parseJsonParam(query, 'where') || {};
     var sort = parseJsonParam(query, 'sort');
@@ -66,7 +61,6 @@ async function listCollection(Model, query, defaultLimit) {
     var skip = parseIntParam(query, 'skip');
     var limit = parseIntParam(query, 'limit');
     var count = parseBoolParam(query, 'count');
-    // The default limit caps returned documents, not counts.
     if (limit === undefined && !count) limit = defaultLimit;
 
     var q = count ? Model.countDocuments(where) : Model.find(where);
@@ -79,7 +73,6 @@ async function listCollection(Model, query, defaultLimit) {
         return await q.exec();
     } catch (err) {
         if (isConnectionError(err)) throw err;
-        // Anything else here was caused by the client's query parameters.
         throw new HttpError(400, 'Bad Request', 'Invalid query parameters');
     }
 }
@@ -93,7 +86,6 @@ function isConnectionError(err) {
         /Network|ServerSelection|Timeout|NotConnected/i.test(err && err.name || '');
 }
 
-// Field checkers for request bodies.
 function isNonEmptyString(v) {
     return typeof v === 'string' && v.trim().length > 0;
 }
@@ -117,7 +109,6 @@ function parseBool(v) {
     return null;
 }
 
-// Express error handler: never leak Mongoose/MongoDB internals.
 function errorHandler(err, req, res, next) {
     if (err instanceof HttpError) {
         return send(res, err.status, err.message, err.data);

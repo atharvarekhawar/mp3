@@ -3,7 +3,6 @@ var Task = require('../models/task');
 var h = require('./helpers');
 var HttpError = h.HttpError;
 
-// Validate a task body and its assignment; throws HttpError, writes nothing.
 async function validateTask(body) {
     body = body || {};
     if (!h.isNonEmptyString(body.name)) {
@@ -68,7 +67,6 @@ async function validateTask(body) {
     };
 }
 
-// Keep the assigned user's pendingTasks in line with a saved task.
 async function syncUsers(task, previousUser) {
     var id = String(task._id);
     if (previousUser && previousUser !== task.assignedUser) {

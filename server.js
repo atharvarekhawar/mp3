@@ -36,7 +36,6 @@ app.use(express.json());
 // Use routes as a module (see index.js)
 require("./routes")(app, router);
 
-// Unknown routes and errors respond with { message, data } JSON
 app.use(function (req, res) {
   res.status(404).json({ message: "Not Found", data: "No such endpoint" });
 });

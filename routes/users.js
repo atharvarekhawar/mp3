@@ -3,7 +3,6 @@ var Task = require('../models/task');
 var h = require('./helpers');
 var HttpError = h.HttpError;
 
-// Validate a user body and its pendingTasks; throws HttpError, writes nothing.
 async function validateUser(req, userId) {
     var body = req.body || {};
     if (!h.isNonEmptyString(body.name)) {
@@ -44,7 +43,6 @@ async function validateUser(req, userId) {
     return { name: body.name.trim(), email: email, pendingTasks: pending };
 }
 
-// Bring tasks in line with a user's (new) pendingTasks.
 async function syncTasks(user, oldPending, oldName) {
     var id = String(user._id);
     var pending = user.pendingTasks;
@@ -57,7 +55,6 @@ async function syncTasks(user, oldPending, oldName) {
         );
     }
     if (pending.length) {
-        // Tasks taken over from other users leave their pendingTasks.
         await User.updateMany(
             { _id: { $ne: user._id }, pendingTasks: { $in: pending } },
             { $pull: { pendingTasks: { $in: pending } } }
